@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>PokéAPI Demo</title>
+  <style>
+    @import url('https://fonts.cdnfonts.com/css/pokemon-solid');
+
+
+    body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #3B4CCA 0%, #2A368F 40%, #f0f8ff 100%);
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+    min-height: 100vh;
+    }
+
+
+    body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("https://raw.githubusercontent.com/PokeAPI/media/master/logo/pokeapi_256.png");
+    background-repeat: repeat;
+    background-size: 120px;
+    opacity: 0.06;
+    z-index: -1;
+    }
+
+
+    .container h1 {
+      font-family: 'Pokemon Solid', sans-serif;
+      color: #FFCB05;
+      text-shadow: 2px 2px 0 #3B4CCA;
+      text-align: center;
+    }
+
+
+    .searchBox {
+      display: flex;
+      max-width: 300px;
+      align-items: center;
+      position: relative;
+      background: #3B4CCA;
+      border-radius: 50px;
+      padding: 5px;
+      margin: 0 auto 30px auto;
+      border: 3px solid #FFCB05;
+    }
+
+
+    .searchInput {
+      border: none;
+      background: none;
+      outline: none;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 16px;
+      font-family: Arial, sans-serif;
+      flex: 1;
+      padding: 12px 20px;
+    }
+
+
+    .searchInput::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+
+    .searchButton {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(90deg, #FF1C1C 0%, #FF5959 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+
+    .searchButton:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
+    }
+
+
+    .searchButton:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+
+    .selecao {
+      max-width: 320px;
+      margin: 20px auto;
+      padding: 15px 20px;
+      background-color: #3B4CCA;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(227, 214, 214, 0.2);
+      color: #FFCB05;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+
+    .selecao label {
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+
+    .selecao select {
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 2px solid #FFCB05;
+      background-color: #2A368F;
+      color: white;
+      font-size: 16px;
+      font-family: Arial, sans-serif;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+
+    .selecao select:hover,
+    .selecao select:focus {
+      background-color: #344AA5;
+      border-color: #FFD700;
+      outline: none;
+    }
+
+
+    #pokemonContainer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 20px;
+      justify-content: center;
+      padding: 0 10px;
+    }
+
+
+    .pokemon-card {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      width: 140px;
+      text-align: center;
+      background-color: #f9f9f9;
+      box-shadow: 0 4px 6px rgba(196, 190, 190, 0.1);
+      transition: transform 0.2s ease;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+    }
+
+
+    .pokemon-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 15px rgba(2, 6, 238, 0.5);
+    }
+
+
+    #pokemonCard {
+      margin-top: 20px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+
+
+    #pokemonCard h2 {
+      color: #3B4CCA;
+      margin-bottom: 10px;
+      font-family: Arial, sans-serif;
+    }
+
+
+    #pokemonCard img {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+      margin-bottom: 15px;
+    }
+
+
+    #pokemonStats ul {
+      list-style-type: none;
+      padding: 0;
+      text-align: left;
+    }
+
+
+    #pokemonStats li {
+      background-color: #eee;
+      margin: 4px 0;
+      padding: 6px 8px;
+      border-radius: 5px;
+      font-weight: bold;
+      font-family: Arial, sans-serif;
+    }
+
+
+    .hidden {
+      display: none;
+    }
+
+
+    #voltarButton {
+      margin-top: 15px;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: #3B4CCA;
+      color: #FFCB05;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+
+    #voltarButton:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 4px 10px rgba(59, 76, 202, 0.5);
+    }
+
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Buscar Pokémon</h1>
+    <div class="searchBox">
+      <input
+        type="text"
+        id="pokemonInput"
+        class="searchInput"
+        placeholder="Digite o nome ou ID do Pokémon"
+      />
+      <button class="searchButton" onclick="buscarPokemon()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 512 511"
+        >
+          <circle
+            cx="256"
+            cy="256"
+            r="230"
+            fill="#FFFFFF"
+            stroke="#000000"
+            stroke-width="20"
+          />
+          <path d="M26,256a230,230 0 0 1 460,0" fill="#FF0000" />
+          <circle
+            cx="256"
+            cy="256"
+            r="80"
+            fill="#FFFFFF"
+            stroke="#000000"
+            stroke-width="20"
+          />
+          <circle cx="256" cy="256" r="40" fill="#000000" />
+        </svg>
+      </button>
+    </div>
+
+
+    <div id="pokemonCard" class="hidden">
+      <h2 id="pokemonName"></h2>
+      <img id="pokemonImage" src="" alt="Imagem do Pokémon" />
+      <p><strong>Tipo:</strong> <span id="pokemonType"></span></p>
+      <p><strong>Altura:</strong> <span id="pokemonHeight"></span></p>
+      <p><strong>Peso:</strong> <span id="pokemonWeight"></span></p>
+      <p><strong>Habilidades:</strong> <span id="pokemonAbilities"></span></p>
+
+
+      <div id="pokemonStats">
+        <h3>Status Base</h3>
+        <ul id="statsList"></ul>
+      </div>
+
+
+      <button id="voltarButton">Voltar</button>
+    </div>
+  </div>
+
+
+  <div class="selecao">
+    <label for="geracaoSelect">Escolha uma geração:</label>
+    <select id="geracaoSelect" onchange="carregarGeracao()">
+      <option value="1">Geração I</option>
+      <option value="2">Geração II</option>
+      <option value="3">Geração III</option>
+      <option value="4">Geração IV</option>
+      <option value="5">Geração V</option>
+      <option value="6">Geração VI</option>
+      <option value="7">Geração VII</option>
+      <option value="8">Geração VIII</option>
+      <option value="9">Geração IX</option>
+    </select>
+  </div>
+
+
+  <div id="pokemonContainer"></div>
+
+
+  <script>
+    const voltarButton = document.getElementById("voltarButton");
+
+
+    async function mostrarPokemonDetalhes(dados) {
+      const spriteAnimado =
+        dados.sprites.versions["generation-v"]["black-white"].animated.front_default;
+      const nome = dados.name.toUpperCase();
+      const tipos = dados.types.map((t) => t.type.name).join(", ");
+      const altura = (dados.height / 10).toFixed(1) + " m";
+      const peso = (dados.weight / 10).toFixed(1) + " kg";
+      const habilidades = dados.abilities.map((h) => h.ability.name).join(", ");
+
+
+      document.getElementById("pokemonName").textContent = nome;
+      document.getElementById("pokemonImage").src = spriteAnimado || dados.sprites.front_default;
+      document.getElementById("pokemonType").textContent = tipos;
+      document.getElementById("pokemonHeight").textContent = altura;
+      document.getElementById("pokemonWeight").textContent = peso;
+      document.getElementById("pokemonAbilities").textContent = habilidades;
+
+
+      const statsList = document.getElementById("statsList");
+      statsList.innerHTML = "";
+      dados.stats.forEach((stat) => {
+        const li = document.createElement("li");
+        li.textContent = `${stat.stat.name.toUpperCase()}: ${stat.base_stat}`;
+        statsList.appendChild(li);
+      });
+
+
+      document.getElementById("pokemonCard").classList.remove("hidden");
+      document.getElementById("pokemonContainer").scrollIntoView({ behavior: "smooth" });
+    }
+
+
+    async function buscarPokemon() {
+      const input = document.getElementById("pokemonInput").value.toLowerCase();
+      const url = `https://pokeapi.co/api/v2/pokemon/${input}`;
+      try {
+        const resposta = await fetch(url);
+        if (!resposta.ok) throw new Error("Pokémon não encontrado");
+        const dados = await resposta.json();
+        mostrarPokemonDetalhes(dados);
+      } catch (erro) {
+        alert(erro.message);
+        document.getElementById("pokemonCard").classList.add("hidden");
+      }
+    }
+
+
+    voltarButton.addEventListener("click", () => {
+      document.getElementById("pokemonCard").classList.add("hidden");
+      document.getElementById("pokemonContainer").scrollIntoView({ behavior: "smooth" });
+    });
+
+
+    async function carregarGeracao() {
+      const container = document.getElementById("pokemonContainer");
+      container.innerHTML = "Carregando...";
+      const geracao = document.getElementById("geracaoSelect").value;
+      const url = `https://pokeapi.co/api/v2/generation/${geracao}`;
+      try {
+        const resposta = await fetch(url);
+        const dados = await resposta.json();
+        const listaDeNomes = dados.pokemon_species.map((p) => p.name);
+        listaDeNomes.sort();
+        container.innerHTML = "";
+
+
+        for (const nome of listaDeNomes) {
+          try {
+            const dadosPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${nome}`)
+              .then((res) => {
+                if (!res.ok) throw new Error(`Erro ao carregar ${nome}`);
+                return res.json();
+              });
+
+
+            const nomeFormatado = dadosPokemon.name.toUpperCase();
+            const tipo = dadosPokemon.types.map((t) => t.type.name).join(", ");
+            const sprite =
+              dadosPokemon.sprites.versions["generation-v"]["black-white"].animated.front_default ||
+              dadosPokemon.sprites.front_default;
+
+
+            const card = document.createElement("div");
+            card.classList.add("pokemon-card");
+            card.innerHTML = `
+              <h3>${nomeFormatado}</h3>
+              <img src="${sprite}" alt="${nomeFormatado}">
+              <p><strong>Tipo:</strong> ${tipo}</p>
+            `;
+
+
+            card.addEventListener("click", () => mostrarPokemonDetalhes(dadosPokemon));
+
+
+            container.appendChild(card);
+          } catch (erroInterno) {
+            console.warn(`Erro ao carregar o Pokémon "${nome}":`, erroInterno.message);
+          }
+        }
+      } catch (erro) {
+        container.innerHTML = "Erro ao carregar geração.";
+        console.error(erro);
+      }
+    }
+
+
+    window.addEventListener("DOMContentLoaded", carregarGeracao);
+  </script>
+</body>
+</html>
+
